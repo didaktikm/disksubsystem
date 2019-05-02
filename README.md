@@ -1,1 +1,1 @@
-# disksubsystem
+# Дискова подсистема Linux
