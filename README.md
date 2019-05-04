@@ -16,6 +16,12 @@
 
 #### Добавляем в VagrantFile функционал для сборки RAID при старте машины.
 
+в секцию:
+```
+box.vm.provision "shell", inline: <<-SHELL
+```	          
+добавляем: 
+
 ```
 yum install -y mdadm smartmontools hdparm gdisk mc curl ansible # устанавливаем необходимые пакеты
 		  mdadm --zero-superblock --force /dev/sd{b,c,d,e,f,g} # обнуляем суперблок
