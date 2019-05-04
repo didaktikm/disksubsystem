@@ -7,11 +7,37 @@
 #### Добавляем диски к существующему массиву.
 
 ```
-:sata5 => {
+:disks => {
+		:sata1 => {
+			:dfile => './sata1.vdi',
+			:size => 20000,
+			:port => 1
+		}
+		:sata2 => {
+                        :dfile => './sata2.vdi',
+                        :size => 250, # Megabytes
+			:port => 2
+		},
+                :sata3 => {
+                        :dfile => './sata3.vdi',
+                        :size => 250,
+                        :port => 3
+                },
+                :sata4 => {
+                        :dfile => './sata4.vdi',
+                        :size => 250, # Megabytes
+                        :port => 4
+                },
+				:sata5 => {
                         :dfile => './sata5.vdi',
                         :size => 250, # Megabytes
                         :port => 5
                 },
+				:sata6 => {
+                        :dfile => './sata6.vdi',
+                        :size => 250, # Megabytes
+                        :port => 6
+                }
 ```                
 
 #### Добавляем в VagrantFile функционал для сборки RAID при старте машины.
