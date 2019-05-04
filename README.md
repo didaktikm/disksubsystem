@@ -13,3 +13,28 @@
                         :port => 5
                 },
 ```                
+
+#### Добавляем в VagrantFile функционал для сборки RAID при старте машины.
+
+```
+yum install -y mdadm smartmontools hdparm gdisk mc curl ansible # устанавливаем необходимые пакеты
+		  mdadm --zero-superblock --force /dev/sd{b,c,d,e,f,g} # обнуляем суперблок
+		  mdadm --create  /dev/md0 -l 10 -n 6 /dev/sd{b,c,d,e,f,g} # создаем RAID 10 уровня из 6 дисков
+		  mkdir /etc/mdadm # содаем директорию для конфига mdadm (у меня она почему то не создалась при установке пакета)
+		  echo "DEVICE partitions" > /etc/mdadm/mdadm.conf # создаем конфиг mdadm
+		  mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' >> /etc/mdadm/mdadm.conf # добавляем информацию о массиве
+		  parted -s /dev/md0 mklabel gpt # создаем таблицу разделов на массиве
+		  parted /dev/md0 mkpart primary ext4 0% 20% # 
+		  parted /dev/md0 mkpart primary ext4 20% 40% ##
+		  parted /dev/md0 mkpart primary ext4 40% 60% ### создаем разделы
+		  parted /dev/md0 mkpart primary ext4 60% 80% ##
+		  parted /dev/md0 mkpart primary ext4 80% 100% #
+		  for i in $(seq 1 5); do sudo mkfs.ext4 /dev/md0p$i; done # создаем файловую систему ext4 на разделах 
+		  mkdir -p /raid/part{1,2,3,4,5} # создаем директорию для каждого раздела
+		  for i in $(seq 1 5); do mount /dev/md0p$i /raid/part$i; done # монтируем разделы, каждый в свою директорию
+		  df -h | grep /raid | awk '{print($1 FS $6)}' >> /etc/fstab # добавляем информацию в fstab для того чтобы разделы монтировались при загрузке
+		  ansible-galaxy install viasite-ansible.zsh --force # устанавливаем роль zsh
+		  curl https://raw.githubusercontent.com/didaktikm/ansible-role-zsh/master/playbook.yml > /tmp/zsh.yml # загружаем playbook
+		  ansible-playbook -i "localhost," -c local /tmp/zsh.yml 
+		  ansible-playbook -i "localhost," -c local /tmp/zsh.yml --extra-vars="zsh_user=$(whoami)" # в качестве бонуса, если зайти под root получим красивый шелл с настройками и плагинами.
+```
