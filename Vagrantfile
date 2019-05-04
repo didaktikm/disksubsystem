@@ -74,9 +74,9 @@ Vagrant.configure("2") do |config|
                   end
           end
  	  box.vm.provision "shell", inline: <<-SHELL
-	      mkdir -p ~root/.ssh
-          cp ~vagrant/.ssh/auth* ~root/.ssh
-	      yum install -y mdadm smartmontools hdparm gdisk mc curl ansible
+	          mkdir -p ~root/.ssh
+                  cp ~vagrant/.ssh/auth* ~root/.ssh
+	          yum install -y mdadm smartmontools hdparm gdisk mc curl ansible
 		  mdadm --zero-superblock --force /dev/sd{b,c,d,e,f,g}
 		  mdadm --create  /dev/md0 -l 10 -n 6 /dev/sd{b,c,d,e,f,g}
 		  mkdir /etc/mdadm
@@ -96,7 +96,7 @@ Vagrant.configure("2") do |config|
 		  curl https://raw.githubusercontent.com/didaktikm/ansible-role-zsh/master/playbook.yml > /tmp/zsh.yml
 		  ansible-playbook -i "localhost," -c local /tmp/zsh.yml
 		  ansible-playbook -i "localhost," -c local /tmp/zsh.yml --extra-vars="zsh_user=$(whoami)"
-  	  SHELL
-      end
+  	        SHELL
+                end
 	end
 end
