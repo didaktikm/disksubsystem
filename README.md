@@ -68,12 +68,12 @@ yum install -y mdadm smartmontools hdparm gdisk mc curl ansible # устанав
 		  ansible-playbook -i "localhost," -c local /tmp/zsh.yml 
 		  ansible-playbook -i "localhost," -c local /tmp/zsh.yml --extra-vars="zsh_user=$(whoami)" # в качестве бонуса, если зайти под root получим красивый шелл с настройками и плагинами.
 ```
-В результате при старте получаем CeontOS 7 с дополнительными 6 дисками, которые при старте соберуться в RAID 10.
+В результате при старте получаем CeontOS 7 с дополнительными 6 дисками, которые при старте соберутся в RAID 10.
 
 ## Задача №2 Перенести рабочую систему CentOS 7 на програмный RAID.
 В системе установленны два диска. ```/dev/sda``` с системой, и ```/dev/sdb``` дополнительный диск по зеркало RAID1
 
-#### Создаем раздел на sdb любым удобрым способом
+#### Создаем раздел на sdb любым удобрым способом.
 
 ```
 fdisk /dev/sdb
@@ -83,44 +83,44 @@ p
 w
 ```
 
-#### Создаем RAID1 и указываем что один диск отсутствует
+#### Создаем RAID1 и указываем что один диск отсутствует.
 
 ```
 mdadm --create --verbose /dev/md0 -l 1 -n 2 missing /dev/sdb1
 ```
 
-#### Форматируем массив
+#### Форматируем массив.
 
 ```
 mkfs.xfs /dev/md0
 ```
 
-#### Монтируем массив в ```/mnt```
+#### Монтируем массив в ```/mnt```.
 
 ```
 mount /dev/md0 /mnt/
 ```
 
-#### Копируем рабочую систему в ```/mnt```
+#### Копируем рабочую систему в ```/mnt```.
 
 ```
 rsync -axu / /mnt/
 ```
 
-#### Монтируем служебные файловые системы в ```/mnt```, и CHROOTимся в новый корень
+#### Монтируем служебные файловые системы в ```/mnt```, и CHROOTимся в новый корень.
 
 ```
 mount --bind /proc /mnt/proc && mount --bind /dev /mnt/dev && mount --bind /sys /mnt/sys && mount --bind /run /mnt/run && chroot /mnt/
 ```
 
-#### Находим uuid нашего массива и вставляем его с заменой в ```/etc/fstab/``` для корневого раздела
+#### Находим uuid нашего массива и вставляем его с заменой в ```/etc/fstab/``` для корневого раздела.
 
 ```
 blkid | grep md
-nano /ecc/fstab
+nano /etc/fstab
 ```
 
-#### Создаем конфиг для mdadm
+#### Создаем конфиг для mdadm.
 
 ```
 mkdir /etc/mdadm
@@ -133,12 +133,12 @@ mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' >> /etc/mdadm/mdadm.conf
 ```
 dracut --force /boot/initramfs-$(uname -r).img $(uname -r)
 ```
-#### Добовляем опцию ядра ```rd.auto=1``` явно, для этого, добавляем ее в ```GRUB_CMDLINE_LINUX```
+#### Добовляем опцию ядра ```rd.auto=1``` явно, для этого, добавляем ее в ```GRUB_CMDLINE_LINUX```.
 ```
 nano /etc/default/grub
 ```
 
-#### Установим GRUB на второй диск и пересоздадим конфигурацию
+#### Установим GRUB на второй диск и пересоздадим конфигурацию.
 
 ```
 grub2-mkconfig -o /boot/grub2/grub.cfg && grub2-install /dev/sdb
@@ -147,9 +147,9 @@ grub2-mkconfig -o /boot/grub2/grub.cfg && grub2-install /dev/sdb
 
 ```
 cat /boot/grub2/grub.cfg | grep -E "rd.auto|mduuid"                                                                                                                              
-	set root='**mduuid**/4f287a04e5a3190ba47f6c579d9cb04a'
+	set root='mduuid/4f287a04e5a3190ba47f6c579d9cb04a'
 	  search --no-floppy --fs-uuid --set=root --hint='mduuid/4f287a04e5a3190ba47f6c579d9cb04a'  b058d7c6-55af-4ab7-8f91-d95459e7a7c9
-	linux16 /boot/vmlinuz-3.10.0-957.5.1.el7.x86_64 root=UUID=b058d7c6-55af-4ab7-8f91-d95459e7a7c9 ro no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto **rd.auto=1**
+	linux16 /boot/vmlinuz-3.10.0-957.5.1.el7.x86_64 root=UUID=b058d7c6-55af-4ab7-8f91-d95459e7a7c9 ro no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto rd.auto=1
 ```
 
 Теперь можно перегрузить машину и в загрузочном меню указать грузиться со второго диска.
@@ -162,7 +162,7 @@ exit
 reboot
 ```
 
-#### После загрузки со второго диска, добавляекм первый в наш массив
+#### После загрузки со второго диска, добавляем первый в наш массив.
 
 ```
 mdadm --manage /dev/md0 --add /dev/sda1
