@@ -45,3 +45,6 @@ yum install -y mdadm smartmontools hdparm gdisk mc curl ansible # устанав
 		  ansible-playbook -i "localhost," -c local /tmp/zsh.yml --extra-vars="zsh_user=$(whoami)" # в качестве бонуса, если зайти под root получим красивый шелл с настройками и плагинами.
 ```
 В результате при старте получаем CeontOS 7 с дополнительными 6 дисками, которые при старте соберуться в RAID 10.
+
+## Задача №2 Перенести рабочую систему с CentOS 7 на програмный RAID.
+
