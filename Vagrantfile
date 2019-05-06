@@ -8,7 +8,7 @@ MACHINES = {
 	:disks => {
 		:sata1 => {
 			:dfile => './sata1.vdi',
-			:size => 20000,
+			:size => 250,
 			:port => 1
 		},
 		:sata2 => {
